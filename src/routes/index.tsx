@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowUpRight, Box, ImageIcon, Mic, Sparkles, Video } from "lucide-react";
+import { ArrowUpRight, Box, ImageIcon, Mic, Sparkles, Video, Layers3 } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -65,6 +65,7 @@ function HomeDashboard() {
           <div className="mt-4 grid grid-cols-2 gap-3">
             <QuickCard icon={<Sparkles />} title="AI Studio" subtitle="ElevenLabs · Nano Banana · 3D" to="/ai-studio" />
             <QuickCard icon={<Video />} title="Video" subtitle="Video Generator" to="/ai-video-generator" />
+            <QuickCard icon={<Layers3 />} title="AI Workspace" subtitle="36 outils IA · Image · Video · Audio · 3D" to="/ai-workspace" />
           </div>
 
           <div className="mt-3 rounded-[1.15rem] border border-white/80 bg-white/85 p-4 shadow-[0_8px_22px_rgba(72,151,190,0.12)]">

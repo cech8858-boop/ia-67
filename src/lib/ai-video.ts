@@ -22,9 +22,10 @@ export const FAMILY_LABELS: Record<string, string> = {
   kling: "Kling",
   veo: "Veo",
   sora: "Sora",
+  wan: "Wan",
 };
 
-export const FAMILY_ORDER = ["kling", "veo", "sora"];
+export const FAMILY_ORDER = ["kling", "veo", "sora", "wan"];
 
 export const MODE_LABELS: Record<VideoMode, string> = {
   text_to_video: "Text to Video",

@@ -123,30 +123,39 @@ export const createVideoGeneration = createServerFn({ method: "POST" })
       return { status: "error", message: GENERIC_ERROR };
     }
 
-    const result = await submitGeneration(model.model_id, payload as Record<string, unknown>);
-
-    if (!result.ok) {
-      await supabaseAdmin.rpc("refund_credits", {
-        _user_id: context.userId,
-        _amount: model.credits_required,
-      });
-      await supabaseAdmin
-        .from("video_generations")
-        .update({ status: "failed", credits_used: 0, updated_at: new Date().toISOString() })
-        .eq("id", row.id);
-      return { status: "error", message: safeErrorMessage(result.body) ?? GENERIC_ERROR };
+    let result: { ok: boolean; body: unknown };
+    if (String(model.provider).toLowerCase() === "fal") {
+      const { submitFalVideo, falError, falVideoUrl } = await import("./fal-video.server");
+      result = await submitFalVideo(model.model_id, payload as Record<string, unknown>);
+      if (!result.ok) {
+        await supabaseAdmin.rpc("refund_credits", { _user_id: context.userId, _amount: model.credits_required });
+        await supabaseAdmin.from("video_generations").update({ status: "failed", credits_used: 0, updated_at: new Date().toISOString() }).eq("id", row.id);
+        return { status: "error", message: falError(result.body) ?? GENERIC_ERROR };
+      }
+      const finished = falVideoUrl(result.body);
+      if (finished) {
+        await supabaseAdmin.from("video_generations").update({ status: "completed", output_url: finished, updated_at: new Date().toISOString() }).eq("id", row.id);
+        return { status: "completed", generationId: row.id, videoUrl: finished };
+      }
+    } else {
+      result = await submitGeneration(model.model_id, payload as Record<string, unknown>);
+      if (!result.ok) {
+        await supabaseAdmin.rpc("refund_credits", { _user_id: context.userId, _amount: model.credits_required });
+        await supabaseAdmin.from("video_generations").update({ status: "failed", credits_used: 0, updated_at: new Date().toISOString() }).eq("id", row.id);
+        return { status: "error", message: safeErrorMessage(result.body) ?? GENERIC_ERROR };
+      }
+      const finished = extractResultVideoUrl(result.body);
+      if (finished) {
+        await supabaseAdmin.from("video_generations").update({ status: "completed", output_url: finished, updated_at: new Date().toISOString() }).eq("id", row.id);
+        return { status: "completed", generationId: row.id, videoUrl: finished };
+      }
     }
 
-    const finished = extractResultVideoUrl(result.body);
-    if (finished) {
-      await supabaseAdmin
-        .from("video_generations")
-        .update({ status: "completed", output_url: finished, updated_at: new Date().toISOString() })
-        .eq("id", row.id);
-      return { status: "completed", generationId: row.id, videoUrl: finished };
-    }
-
-    const taskId = extractTaskId(result.body);
+    const taskId = String(model.provider).toLowerCase() === "fal"
+      ? (result.body && typeof result.body === "object" && typeof (result.body as Record<string, unknown>).request_id === "string"
+          ? String((result.body as Record<string, unknown>).request_id)
+          : extractTaskId(result.body))
+      : extractTaskId(result.body);
     if (!taskId) {
       await supabaseAdmin.rpc("refund_credits", {
         _user_id: context.userId,
@@ -182,7 +191,7 @@ export const pollVideoGeneration = createServerFn({ method: "POST" })
 
     const { data: row } = await supabaseAdmin
       .from("video_generations")
-      .select("id, user_id, task_id, status, output_url, credits_used")
+      .select("id, user_id, provider, model, task_id, status, output_url, credits_used")
       .eq("id", data.generationId)
       .eq("user_id", context.userId)
       .maybeSingle();
@@ -194,11 +203,30 @@ export const pollVideoGeneration = createServerFn({ method: "POST" })
     if (row.status === "failed") return { status: "error", message: GENERIC_ERROR };
     if (!row.task_id) return { status: "processing" };
 
-    const result = await getTaskStatus(row.task_id);
-    if (!result.ok) return { status: "processing" };
-
-    const videoUrl = extractResultVideoUrl(result.body);
-    const state = extractTaskStatus(result.body);
+    let result: { ok: boolean; body: unknown };
+    let videoUrl: string | null = null;
+    let state: string | null = null;
+    if (String(row.provider).toLowerCase() === "fal") {
+      const { getFalVideoStatus, getFalVideoResult, falVideoUrl, falError } = await import("./fal-video.server");
+      const statusResult = await getFalVideoStatus(row.model, row.task_id);
+      if (!statusResult.ok) return { status: "processing" };
+      state = String(statusResult.body && typeof statusResult.body === "object" ? (statusResult.body as Record<string, unknown>).status ?? "" : "").toLowerCase();
+      if (["in_progress", "in_queue", "queued"].includes(state)) return { status: "processing" };
+      if (["failed", "error", "canceled", "cancelled"].includes(state)) {
+        const message = falError(statusResult.body) ?? GENERIC_ERROR;
+        await supabaseAdmin.rpc("refund_credits", { _user_id: context.userId, _amount: row.credits_used });
+        await supabaseAdmin.from("video_generations").update({ status: "failed", error_message: message, updated_at: new Date().toISOString() }).eq("id", row.id);
+        return { status: "error", message };
+      }
+      const finalResult = await getFalVideoResult(row.model, row.task_id);
+      if (!finalResult.ok) return { status: "processing" };
+      videoUrl = falVideoUrl(finalResult.body);
+    } else {
+      result = await getTaskStatus(row.task_id);
+      if (!result.ok) return { status: "processing" };
+      videoUrl = extractResultVideoUrl(result.body);
+      state = extractTaskStatus(result.body);
+    }
 
     if (videoUrl && (!state || isSuccess(state))) {
       await supabaseAdmin

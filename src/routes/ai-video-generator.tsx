@@ -230,13 +230,13 @@ function AiVideoGenerator() {
   });
 
   const busy = phase === "uploading" || phase === "processing";
-  const selectedModelName = family === "veo" ? "VEO3" : family === "sora" ? "SORA2" : "Kling Video";
+  const selectedModelName = family === "veo" ? "VEO 3.1" : family === "sora" ? "SORA 2" : family === "wan" ? "WAN 2.7" : "Kling 3.0 Pro";
   const modelOptions = [
     { name: "VEO3", family: "veo", position: "0% 0%" },
     { name: "SORA2", family: "sora", position: "100% 0%" },
     { name: "Motion Control", route: "/character-swap", position: "0% 50%" },
     { name: "Kling Video", family: "kling", position: "100% 50%" },
-    { name: "WAN 2.2", route: "/wan-2-2", position: "0% 100%" },
+    { name: "WAN 2.7", family: "wan", position: "0% 100%" },
     { name: "Nano Banana", route: "/ai-image", position: "100% 100%" },
   ] as const;
 

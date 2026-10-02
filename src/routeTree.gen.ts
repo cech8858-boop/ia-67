@@ -12,6 +12,11 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AccountRouteImport } from './routes/account'
 import { Route as AiStudioRouteImport } from './routes/ai-studio'
+import { Route as AiWorkspaceRouteImport } from './routes/ai-workspace'
+import { Route as AiHubRouteImport } from './routes/ai-hub'
+import { Route as AiBuildersRouteImport } from './routes/ai-builders'
+import { Route as ChatgptPluginRouteImport } from './routes/chatgpt-plugin'
+import { Route as HiggsfieldStudioRouteImport } from './routes/higgsfield-studio'
 import { Route as AiImageRouteImport } from './routes/ai-image'
 import { Route as AiVideoGeneratorRouteImport } from './routes/ai-video-generator'
 import { Route as ApidotMediaRouteImport } from './routes/apidot-media'
@@ -34,6 +39,31 @@ const IndexRoute = IndexRouteImport.update({
 const AiStudioRoute = AiStudioRouteImport.update({
   id: '/ai-studio',
   path: '/ai-studio',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AiWorkspaceRoute = AiWorkspaceRouteImport.update({
+  id: '/ai-workspace',
+  path: '/ai-workspace',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AiHubRoute = AiHubRouteImport.update({
+  id: '/ai-hub',
+  path: '/ai-hub',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AiBuildersRoute = AiBuildersRouteImport.update({
+  id: '/ai-builders',
+  path: '/ai-builders',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChatgptPluginRoute = ChatgptPluginRouteImport.update({
+  id: '/chatgpt-plugin',
+  path: '/chatgpt-plugin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HiggsfieldStudioRoute = HiggsfieldStudioRouteImport.update({
+  id: '/higgsfield-studio',
+  path: '/higgsfield-studio',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AccountRoute = AccountRouteImport.update({
@@ -110,6 +140,11 @@ const ApiPublicVideoProxyRoute = ApiPublicVideoProxyRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/account': typeof AccountRoute
+  '/ai-workspace': typeof AiWorkspaceRoute
+  '/ai-hub': typeof AiHubRoute
+  '/ai-builders': typeof AiBuildersRoute
+  '/chatgpt-plugin': typeof ChatgptPluginRoute
+  '/higgsfield-studio': typeof HiggsfieldStudioRoute
   '/ai-studio': typeof AiStudioRoute
   '/ai-image': typeof AiImageRoute
   '/ai-video-generator': typeof AiVideoGeneratorRoute
@@ -128,6 +163,11 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/account': typeof AccountRoute
+  '/ai-workspace': typeof AiWorkspaceRoute
+  '/ai-hub': typeof AiHubRoute
+  '/ai-builders': typeof AiBuildersRoute
+  '/chatgpt-plugin': typeof ChatgptPluginRoute
+  '/higgsfield-studio': typeof HiggsfieldStudioRoute
   '/ai-studio': typeof AiStudioRoute
   '/ai-image': typeof AiImageRoute
   '/ai-video-generator': typeof AiVideoGeneratorRoute
@@ -147,6 +187,11 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/account': typeof AccountRoute
+  '/ai-workspace': typeof AiWorkspaceRoute
+  '/ai-hub': typeof AiHubRoute
+  '/ai-builders': typeof AiBuildersRoute
+  '/chatgpt-plugin': typeof ChatgptPluginRoute
+  '/higgsfield-studio': typeof HiggsfieldStudioRoute
   '/ai-studio': typeof AiStudioRoute
   '/ai-image': typeof AiImageRoute
   '/ai-video-generator': typeof AiVideoGeneratorRoute
@@ -167,6 +212,11 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/account'
+    | '/ai-workspace'
+    | '/ai-hub'
+    | '/ai-builders'
+    | '/chatgpt-plugin'
+    | '/higgsfield-studio'
     | '/ai-studio'
     | '/ai-image'
     | '/ai-video-generator'
@@ -185,6 +235,11 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/account'
+    | '/ai-workspace'
+    | '/ai-hub'
+    | '/ai-builders'
+    | '/chatgpt-plugin'
+    | '/higgsfield-studio'
     | '/ai-studio'
     | '/ai-image'
     | '/ai-video-generator'
@@ -203,6 +258,11 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/account'
+    | '/ai-workspace'
+    | '/ai-hub'
+    | '/ai-builders'
+    | '/chatgpt-plugin'
+    | '/higgsfield-studio'
     | '/ai-studio'
     | '/ai-image'
     | '/ai-video-generator'
@@ -223,6 +283,11 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AccountRoute: typeof AccountRoute
   AiStudioRoute: typeof AiStudioRoute
+  AiWorkspaceRoute: typeof AiWorkspaceRoute
+  AiHubRoute: typeof AiHubRoute
+  AiBuildersRoute: typeof AiBuildersRoute
+  ChatgptPluginRoute: typeof ChatgptPluginRoute
+  HiggsfieldStudioRoute: typeof HiggsfieldStudioRoute
   AiImageRoute: typeof AiImageRoute
   AiVideoGeneratorRoute: typeof AiVideoGeneratorRoute
   ApidotMediaRoute: typeof ApidotMediaRoute
@@ -250,6 +315,41 @@ declare module '@tanstack/react-router' {
       path: '/account'
       fullPath: '/account'
       preLoaderRoute: typeof AccountRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ai-workspace': {
+      id: '/ai-workspace'
+      path: '/ai-workspace'
+      fullPath: '/ai-workspace'
+      preLoaderRoute: typeof AiWorkspaceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ai-hub': {
+      id: '/ai-hub'
+      path: '/ai-hub'
+      fullPath: '/ai-hub'
+      preLoaderRoute: typeof AiHubRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ai-builders': {
+      id: '/ai-builders'
+      path: '/ai-builders'
+      fullPath: '/ai-builders'
+      preLoaderRoute: typeof AiBuildersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chatgpt-plugin': {
+      id: '/chatgpt-plugin'
+      path: '/chatgpt-plugin'
+      fullPath: '/chatgpt-plugin'
+      preLoaderRoute: typeof ChatgptPluginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/higgsfield-studio': {
+      id: '/higgsfield-studio'
+      path: '/higgsfield-studio'
+      fullPath: '/higgsfield-studio'
+      preLoaderRoute: typeof HiggsfieldStudioRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ai-image': {
@@ -350,6 +450,11 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AccountRoute: AccountRoute,
   AiStudioRoute: AiStudioRoute,
+  AiWorkspaceRoute: AiWorkspaceRoute,
+  AiHubRoute: AiHubRoute,
+  AiBuildersRoute: AiBuildersRoute,
+  ChatgptPluginRoute: ChatgptPluginRoute,
+  HiggsfieldStudioRoute: HiggsfieldStudioRoute,
   AiImageRoute: AiImageRoute,
   AiVideoGeneratorRoute: AiVideoGeneratorRoute,
   ApidotMediaRoute: ApidotMediaRoute,
