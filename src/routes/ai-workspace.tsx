@@ -60,12 +60,19 @@ function AiWorkspacePage() {
   const upload = async (file?: File) => {
     if (!file) return;
     setError(null);
+    setFileUrl(undefined);
+    setFileName(undefined);
     const path = `uploads/workspace-${Date.now()}-${file.name.replace(/[^\w.-]/g, "_")}`;
-    const up = await supabase.storage.from("character-swap").upload(path, file, { contentType: file.type, upsert: true });
-    if (up.error) { setError("Impossible d'envoyer le fichier."); return; }
-    const signed = await supabase.storage.from("character-swap").createSignedUrl(path, 3600);
-    if (signed.error || !signed.data?.signedUrl) { setError("Impossible de préparer le fichier."); return; }
-    setFileUrl(signed.data.signedUrl); setFileName(file.name);
+    try {
+      const up = await supabase.storage.from("character-swap").upload(path, file, { contentType: file.type || "application/octet-stream", upsert: true });
+      if (up.error) { setError(`Échec de l'envoi : ${up.error.message}`); return; }
+      const signed = await supabase.storage.from("character-swap").createSignedUrl(path, 3600);
+      if (signed.error || !signed.data?.signedUrl) { setError(`Fichier envoyé, mais URL de référence impossible à créer : ${signed.error?.message ?? "URL absente"}`); return; }
+      setFileUrl(signed.data.signedUrl);
+      setFileName(file.name);
+    } catch (uploadError) {
+      setError(uploadError instanceof Error ? `Échec de l'envoi : ${uploadError.message}` : "Échec de l'envoi du fichier.");
+    }
   };
 
   const enhancePrompt = () => {
